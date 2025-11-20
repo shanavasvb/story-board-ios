@@ -221,8 +221,9 @@ The bottom layer that directly interacts with **hardware**. Ensures security, de
 
 ---
 
-### iOS Architecture Summary
 
+### iOS Architecture Summary
+![architeture](ioslayers.png)
 | Layer | Role | Examples |
 |-------|------|----------|
 | **Cocoa Touch** | UI + User Interaction | UIKit, PushKit |
