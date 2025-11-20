@@ -122,7 +122,6 @@ To use UI elements in Swift code, create:
 ---
 
 ## 🏗️ iOS Architecture Layers
-![layers](ioslayers.png)
 
 iOS architecture is organized into **four layers**, where each layer provides specific services to the layer above it. This architecture helps developers build secure, fast, and well-structured apps.
 
@@ -415,19 +414,301 @@ override func viewDidLoad() {
 
 > *Cocoa Touch is the top layer of iOS architecture that provides frameworks for building user interfaces and handling user interactions. It includes UIKit, MapKit, PushKit, and other frameworks. It follows MVC and provides UI components like buttons, table views, alerts, and gestures.*
 
+---
 
- MOST REPEATED QUESTIONS – CHAPTER 2
+## 📱 UI Components Deep Dive
 
-Differentiate between UITextField and UITextView.
+### UITextField vs UITextView
 
-Explain the difference between Alert and Action Sheet with a suitable example.
+In iOS, `UITextField` and `UITextView` are two commonly used input components for taking text from users, but they are used for different purposes based on the amount and type of text input.
 
-Explain IBAction and IBOutlet (with a simple example).
+#### UITextField
 
-What are value change event controls? Explain with examples (Slider/Switch/Stepper).
+`UITextField` is mainly used to input short, single-line text, such as names, email IDs, phone numbers, passwords, or search fields. It does not support multi-line typing and shows only one line at a time.
 
-Write a note on UINavigationController and its use in screen navigation.
+It has built-in features like placeholder text, clear button, autocorrection, and return key actions. It is often used with delegates (`textFieldShouldReturn`) to control behavior such as jumping to next field, validation, or closing the keyboard.
 
+**Example Use Cases:**
+- Login screen (Username, Email, Password)
+- Search bar
+- Phone number input
 
+**Code Example:**
 
+```swift
+import UIKit
 
+class ViewController: UIViewController, UITextFieldDelegate {
+    @IBOutlet weak var nameField: UITextField!
+    @IBOutlet weak var resultLabel: UILabel!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        nameField.delegate = self   // assigning delegate
+    }
+    
+    // Button Action
+    @IBAction func submitButton(_ sender: UIButton) {
+        resultLabel.text = "Hello, \(nameField.text!)"
+    }
+    
+    // Dismiss keyboard when return key pressed
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+}
+```
+
+#### UITextView
+
+`UITextView` is designed for multi-line text input, where users need to type large descriptions or paragraph-length content. Unlike UITextField, it supports scrolling, text formatting, and editing multiple lines easily.
+
+It is useful when capturing longer input from the user. Using its delegate (`textViewDidChange`), we can track typing or customize text entry. It can also display formatted text, links, or rich text content.
+
+**Example Use Cases:**
+- Feedback form message
+- User profile bio
+- Comments box
+- Notes or descriptions
+
+#### Key Differences
+
+| Feature | UITextField | UITextView |
+|---------|-------------|------------|
+| **Input Length** | Short, single-line | Long, multi-line |
+| **Scrolling** | Not supported | Scrolls automatically |
+| **Return Key** | Used to submit/close keyboard | Adds a new line |
+| **Auto-Resize** | Stays single line | Expands vertically |
+| **Best Use Case** | Login fields, Search | Reviews, Description boxes |
+
+#### Exam Definition
+
+> *In summary, UITextField is best suited for short and single-line input such as login forms, whereas UITextView is used for long, multi-line content like comments or descriptions since it supports scrolling and rich text editing.*
+
+---
+
+### Alert vs Action Sheet
+
+#### What is an Alert?
+
+An **Alert** (`UIAlertController` with `.alert` style) is a small popup message that appears in the center of the screen. It is used to display important messages, warnings, errors, or decisions that need immediate attention. The user must respond before continuing.
+
+**Examples of When to Use:**
+- Invalid login credentials
+- Delete confirmation
+- Warning message (e.g., "Low Battery!")
+
+#### What is an Action Sheet?
+![action sheet](actionsheet.png)
+An **Action Sheet** (`UIAlertController` with `.actionSheet` style) appears from the bottom of the screen. It is used when the user must choose between multiple actions usually related to a UI element.
+
+**Examples of When to Use:**
+- Choose image source: Camera or Gallery
+- Select sharing option: Email, WhatsApp, Bluetooth
+- File handling options: Rename, Delete, Move
+
+#### Key Differences
+
+| Feature | Alert | Action Sheet |
+|---------|-------|--------------|
+| **Position** | Appears in center | Slides up from bottom |
+| **Purpose** | Display important information or warnings | Provide choices/actions related to a task |
+| **Use Case Example** | Wrong password | Choose image: Camera/Gallery |
+| **User Attention** | High priority | Medium priority |
+
+#### Scenario Example
+
+Suppose a user wants to upload a profile photo. Action Sheet is used to choose Camera or Gallery. If login fails, Alert is used to display a warning.
+
+#### Swift Code Example
+
+```swift
+import UIKit
+
+class ViewController: UIViewController {
+
+    @IBAction func showAlertButton(_ sender: UIButton) {
+        // MARK: - ALERT
+        let alert = UIAlertController(title: "Login Failed",
+                                      message: "Invalid username or password.",
+                                      preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        alert.addAction(UIAlertAction(title: "Forgot Password?", style: .destructive, handler: nil))
+
+        self.present(alert, animated: true, completion: nil)
+    }
+
+    @IBAction func showActionSheetButton(_ sender: UIButton) {
+        // MARK: - ACTION SHEET
+        let actionSheet = UIAlertController(title: "Upload Photo",
+                                            message: "Choose source",
+                                            preferredStyle: .actionSheet)
+
+        actionSheet.addAction(UIAlertAction(title: "Camera", style: .default, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "Gallery", style: .default, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        self.present(actionSheet, animated: true, completion: nil)
+    }
+}
+```
+
+#### Exam Definition
+
+> *Alert appears in the center and is used for warnings or important messages (e.g., login error). Action Sheet appears from the bottom and is used for choosing actions like Camera/Gallery. Both are created using `UIAlertController`, but with different styles.*
+
+---
+
+### IBAction vs IBOutlet
+
+#### What is IBOutlet?
+
+**IBOutlet** (Interface Builder Outlet) is a connection that links a UI component from Storyboard to Swift code. It is used to access and modify UI elements programmatically (like labels, buttons, text fields, etc.).
+
+**Example Uses of IBOutlet:**
+- Change text of a label
+- Read value from a text field
+- Hide/show UI elements
+
+**Syntax Example:**
+
+```swift
+@IBOutlet weak var nameLabel: UILabel!
+```
+
+#### What is IBAction?
+
+**IBAction** (Interface Builder Action) is used to connect UI events (like button clicks) from the Storyboard to a function in Swift. It is triggered when the user interacts with the UI.
+
+**Example Uses of IBAction:**![alt text](valuechange.png)
+- Button click
+- Slider value change
+- Switch toggle
+
+**Syntax Example:**
+
+```swift
+@IBAction func submitButton(_ sender: UIButton) {
+    // code to handle button click
+}
+```
+
+#### Difference Table
+
+| Feature | IBOutlet | IBAction |
+|---------|----------|----------|
+| **Purpose** | To reference a UI element in code | To handle an event triggered by UI |
+| **Type** | Variable/property | Function/method |
+| **Used For** | Reading & modifying UI data | Responding to user interaction |
+| **Connected From** | UI component → Code | UI event (Button/Slider) → Code |
+
+#### Combined Example
+
+```swift
+import UIKit
+
+class ViewController: UIViewController {
+
+    @IBOutlet weak var nameField: UITextField!     // IBOutlet
+    @IBOutlet weak var resultLabel: UILabel!       // IBOutlet
+    
+    @IBAction func submitButton(_ sender: UIButton) {  // IBAction
+        resultLabel.text = "Hello, \(nameField.text!)"
+    }
+}
+```
+
+**Explanation:**
+- `nameField` and `resultLabel` are connected from UI to code using IBOutlet
+- `submitButton()` is connected to a button using IBAction and updates the label when clicked
+
+#### Exam Definition
+
+> *IBOutlet is used to connect UI elements (like labels or text fields) to Swift code so they can be accessed or edited. IBAction connects UI events (like button clicks) to a function in Swift. IBOutlet is a variable, whereas IBAction is a function triggered by user interaction.*
+
+---
+
+## 🧭 Navigation
+
+### UINavigationController
+
+#### What is UINavigationController?
+
+A **UINavigationController** is a special controller in iOS that manages the navigation between multiple screens (View Controllers) using a stack-based system. It lets users move forward (push) to a new screen and go back (pop) automatically with a back button.
+
+#### Why Use UINavigationController?
+
+- To move between multiple screens easily
+- Automatically shows a navigation bar and back button
+- Maintains the history of screens using a stack (push & pop)
+- Used in most apps with hierarchical navigation (Settings, Contacts, Mail, etc.)
+
+#### How It Works (Push & Pop)
+
+| Action | Meaning | Example |
+|--------|---------|---------|
+| **Push** | Go to next screen | Open Profile from Home |
+| **Pop** | Go back to previous screen | Back to Home from Profile |
+
+#### Navigation Stack Diagram
+
+```
+Top of Stack → Profile Screen (Current)
+               Home Screen
+Bottom →       Main App Root
+```
+
+#### Code Examples
+
+**Push to Next Screen:**
+
+```swift
+// Inside a button action
+let nextVC = storyboard?.instantiateViewController(withIdentifier: "ProfileVC") as! ProfileVC
+self.navigationController?.pushViewController(nextVC, animated: true)
+```
+
+**Pop Back to Previous Screen:**
+
+```swift
+self.navigationController?.popViewController(animated: true)
+```
+
+#### In Storyboard
+
+1. Select the first View Controller
+2. Go to **Editor → Embed In → Navigation Controller**
+3. Drag another View Controller and make a **Show (Push)** segue
+
+#### Where It Is Commonly Used
+
+| App | Navigation Example |
+|-----|-------------------|
+| **Settings App** | Settings → Display → Brightness |
+| **Contacts** | List → Person Details |
+| **Shopping** | Home → Product → Cart |
+
+#### Exam Definition
+
+> *UINavigationController manages navigation between multiple screens using a stack mechanism (push and pop). It displays a navigation bar with a back button automatically and is used to build hierarchical screen flows such as in Contacts, Settings, or Shopping apps.*
+
+---
+
+## 🤝 Contributing
+
+Feel free to contribute by:
+- Adding more explanations
+- Fixing errors
+- Suggesting improvements
+
+---
+
+## 📝 License
+
+This study guide is for educational purposes.
+
+---
+
+**Happy Learning! 🚀**
