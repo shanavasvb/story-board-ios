@@ -706,10 +706,4 @@ Feel free to contribute by:
 
 ---
 
-## 📝 License
-
-This study guide is for educational purposes.
-
----
-
-**Happy Learning! 🚀**
+#
