@@ -2,6 +2,8 @@
 
 A comprehensive guide covering the most important iOS development concepts for beginners.
 
+![Course Syllabus](./syllabusjpeg)
+
 ---
 
 ## 📚 Table of Contents
@@ -9,7 +11,18 @@ A comprehensive guide covering the most important iOS development concepts for b
 - [Most Important Questions](#most-important-questions)
 - [Info.plist](#infoplist)
 - [Interface Builder](#interface-builder)
-- [Additional Topics](#additional-topics)
+- [Storyboard](#storyboard)
+- [iOS Architecture Layers](#ios-architecture-layers)
+- [Touches vs Gestures](#touches-vs-gestures)
+- [Global Thread vs Main Thread](#global-thread-vs-main-thread)
+- [Cocoa Touch Framework](#cocoa-touch-framework)
+- [Value Change Controls](#value-change-controls)
+- [UI Components Deep Dive](#ui-components-deep-dive)
+  - [UITextField vs UITextView](#uitextfield-vs-uitextview)
+  - [Alert vs Action Sheet](#alert-vs-action-sheet)
+  - [IBAction vs IBOutlet](#ibaction-vs-iboutlet)
+- [Navigation](#navigation)
+  - [UINavigationController](#uinavigationcontroller)
 
 ---
 
@@ -119,11 +132,65 @@ To use UI elements in Swift code, create:
 
 ---
 
+## 📱 Storyboard
+
+### What is Storyboard?
+
+**Storyboard** is a visual representation of the user interface of an iOS application. It shows all the screens (View Controllers) and the transitions (segues) between them in a single file. Storyboard makes it easy to design and understand the app's flow without writing code.
+
+### Key Features of Storyboard
+
+- **Visual App Flow**: See all screens and their connections in one place
+- **Segues**: Visual transitions between screens (show, present, unwind)
+- **Prototype Cells**: Design reusable table view cells visually
+- **Auto Layout**: Set up constraints for responsive design
+- **Multiple View Controllers**: Manage entire app navigation in one file
+
+### Benefits of Using Storyboard
+
+1. **Easy to visualize** the complete app flow
+2. **Faster UI development** with drag-and-drop
+3. **Better collaboration** - designers can understand the flow
+4. **Simplified navigation** setup between screens
+5. **Reusable components** like prototype cells
+
+### Storyboard vs XIB
+
+| Feature | Storyboard | XIB |
+|---------|-----------|-----|
+| **Scope** | Multiple screens in one file | Single screen per file |
+| **Navigation** | Shows segues between screens | No navigation shown |
+| **Use Case** | Complete app flow | Individual reusable views |
+| **File Size** | Larger (contains multiple VCs) | Smaller (single view) |
+
+### Creating Segues in Storyboard
+
+**Types of Segues:**
+- **Show (Push)**: Pushes to next screen in navigation stack
+- **Present Modally**: Shows screen as a modal popup
+- **Unwind**: Returns to previous screen
+
+**Code to Trigger Segue:**
+
+```swift
+performSegue(withIdentifier: "showDetail", sender: self)
+```
+
+### Exam Definition
+
+> *Storyboard is a visual interface file in iOS that displays all the app's screens and transitions in one place. It allows developers to design the complete user interface flow, set up navigation between screens using segues, and create prototype cells for table views, all without writing layout code.*
+
+![Storyboard Diagram](Storyboard_pdf)
+
+---
+
 ---
 
 ## 🏗️ iOS Architecture Layers
 
 iOS architecture is organized into **four layers**, where each layer provides specific services to the layer above it. This architecture helps developers build secure, fast, and well-structured apps.
+
+![iOS Architecture Layers](ioslayers.png)
 
 ### 1️⃣ Cocoa Touch Layer (Topmost Layer)
 
@@ -221,9 +288,8 @@ The bottom layer that directly interacts with **hardware**. Ensures security, de
 
 ---
 
-
 ### iOS Architecture Summary
-![architeture](ioslayers.png)
+
 | Layer | Role | Examples |
 |-------|------|----------|
 | **Cocoa Touch** | UI + User Interaction | UIKit, PushKit |
@@ -417,6 +483,135 @@ override func viewDidLoad() {
 
 ---
 
+## 🎚️ Value Change Controls
+
+iOS provides several interactive controls that allow users to change values through intuitive gestures. The three main value change controls are **Slider**, **Switch**, and **Stepper**.
+
+![Value Change Controls](valuechange.png)
+
+### UISlider
+
+**UISlider** allows users to select a value from a continuous range by dragging a thumb along a horizontal track.
+
+#### Key Properties
+- `minimumValue`: Lowest value (default: 0.0)
+- `maximumValue`: Highest value (default: 1.0)
+- `value`: Current value
+- `minimumTrackTintColor`: Color of track before thumb
+- `maximumTrackTintColor`: Color of track after thumb
+
+#### Example Use Cases
+- Volume control
+- Brightness adjustment
+- Age/price range selection
+- Video playback progress
+
+#### Code Example
+
+```swift
+@IBOutlet weak var volumeSlider: UISlider!
+@IBOutlet weak var volumeLabel: UILabel!
+
+override func viewDidLoad() {
+    super.viewDidLoad()
+    volumeSlider.minimumValue = 0
+    volumeSlider.maximumValue = 100
+    volumeSlider.value = 50
+}
+
+@IBAction func sliderValueChanged(_ sender: UISlider) {
+    let currentValue = Int(sender.value)
+    volumeLabel.text = "Volume: \(currentValue)"
+}
+```
+
+---
+
+### UISwitch
+
+**UISwitch** is a binary control that toggles between ON and OFF states.
+
+#### Key Properties
+- `isOn`: Boolean value (true/false)
+- `onTintColor`: Color when switch is ON
+- `thumbTintColor`: Color of the movable thumb
+
+#### Example Use Cases
+- Enable/Disable notifications
+- Dark mode toggle
+- WiFi/Bluetooth ON/OFF
+- Show/Hide password
+
+#### Code Example
+
+```swift
+@IBOutlet weak var notificationSwitch: UISwitch!
+@IBOutlet weak var statusLabel: UILabel!
+
+@IBAction func switchValueChanged(_ sender: UISwitch) {
+    if sender.isOn {
+        statusLabel.text = "Notifications Enabled"
+    } else {
+        statusLabel.text = "Notifications Disabled"
+    }
+}
+```
+
+---
+
+### UIStepper
+
+**UIStepper** provides increment and decrement buttons to adjust a numeric value by a fixed step amount.
+
+#### Key Properties
+- `minimumValue`: Lowest allowed value
+- `maximumValue`: Highest allowed value
+- `stepValue`: Amount to change per tap (default: 1)
+- `value`: Current numeric value
+- `wraps`: Whether value wraps around at limits
+
+#### Example Use Cases
+- Quantity selector (shopping cart)
+- Font size adjustment
+- Rating counter
+- Timer minutes/seconds
+
+#### Code Example
+
+```swift
+@IBOutlet weak var stepper: UIStepper!
+@IBOutlet weak var quantityLabel: UILabel!
+
+override func viewDidLoad() {
+    super.viewDidLoad()
+    stepper.minimumValue = 1
+    stepper.maximumValue = 10
+    stepper.stepValue = 1
+    stepper.value = 1
+}
+
+@IBAction func stepperValueChanged(_ sender: UIStepper) {
+    let quantity = Int(sender.value)
+    quantityLabel.text = "Quantity: \(quantity)"
+}
+```
+
+---
+
+### Comparison of Value Change Controls
+
+| Control | Input Method | Value Type | Use Case |
+|---------|--------------|------------|----------|
+| **UISlider** | Drag thumb | Continuous range | Volume, brightness, progress |
+| **UISwitch** | Tap to toggle | Boolean (ON/OFF) | Enable/disable features |
+| **UIStepper** | Tap +/- buttons | Discrete numeric | Quantity, counter, rating |
+
+### Exam Definition
+
+> *UISlider allows continuous value selection by dragging a thumb along a track. UISwitch is a binary toggle control for ON/OFF states. UIStepper uses increment/decrement buttons to adjust numeric values by fixed steps. These controls provide intuitive ways for users to modify values without keyboard input.*
+
+---
+
 ## 📱 UI Components Deep Dive
 
 ### UITextField vs UITextView
@@ -501,7 +696,7 @@ An **Alert** (`UIAlertController` with `.alert` style) is a small popup message 
 - Warning message (e.g., "Low Battery!")
 
 #### What is an Action Sheet?
-![action sheet](actionsheet.png)
+
 An **Action Sheet** (`UIAlertController` with `.actionSheet` style) appears from the bottom of the screen. It is used when the user must choose between multiple actions usually related to a UI element.
 
 **Examples of When to Use:**
@@ -560,6 +755,8 @@ class ViewController: UIViewController {
 
 > *Alert appears in the center and is used for warnings or important messages (e.g., login error). Action Sheet appears from the bottom and is used for choosing actions like Camera/Gallery. Both are created using `UIAlertController`, but with different styles.*
 
+![Action Sheet Example](actionsheet.png)
+
 ---
 
 ### IBAction vs IBOutlet
@@ -583,7 +780,7 @@ class ViewController: UIViewController {
 
 **IBAction** (Interface Builder Action) is used to connect UI events (like button clicks) from the Storyboard to a function in Swift. It is triggered when the user interacts with the UI.
 
-**Example Uses of IBAction:**![alt text](valuechange.png)
+**Example Uses of IBAction:**
 - Button click
 - Slider value change
 - Switch toggle
@@ -706,4 +903,10 @@ Feel free to contribute by:
 
 ---
 
-#
+## 📝 License
+
+This study guide is for educational purposes.
+
+---
+
+**Happy Learning! 🚀**
