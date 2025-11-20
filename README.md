@@ -1092,6 +1092,290 @@ Controller updates View with new data
 
 ---
 
+### Implementing Contact List Using UITableView
+
+#### Introduction
+
+`UITableView` is a scrolling list used to display data in rows. To build a contact list, we use a TableView to show names, and when a user selects a row, we can show more details.
+
+#### Steps to Implement Contact List
+
+**Step 1: Design UI in Storyboard**
+
+- Drag a `UITableView` to the ViewController
+- Add Prototype Cell and set its Identifier (e.g., `"cell"`)
+- Connect the UITableView to the IBOutlet
+
+```swift
+@IBOutlet weak var tableView: UITableView!
+```
+
+**Step 2: Prepare Data (Array of Contacts)**
+
+```swift
+let contacts = ["Rahul", "Akhil", "John", "Meera", "Sandra"]
+```
+
+**Step 3: Set DataSource & Delegate**
+
+Make the ViewController conform to:
+
+```swift
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+```
+
+**Step 4: Implement Required TableView Methods**
+
+```swift
+// Number of rows
+func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return contacts.count
+}
+
+// Display cell data
+func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+    cell.textLabel?.text = contacts[indexPath.row]
+    return cell
+}
+```
+
+**Step 5: Handle Row Selection**
+
+```swift
+func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    print("Selected Contact: \(contacts[indexPath.row])")
+}
+```
+
+**Optional: Show Selected Contact in Label**
+
+```swift
+@IBOutlet weak var selectedLabel: UILabel!
+
+func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    selectedLabel.text = "You Selected: \(contacts[indexPath.row])"
+}
+```
+
+#### Flow Diagram
+
+```
+User taps a row
+        ↓
+didSelectRowAt() triggered
+        ↓
+App shows selected contact name or moves to details screen
+```
+
+#### Exam Definition
+
+> *UITableView displays a list of contacts using `UITableViewDataSource` and `UITableViewDelegate`. Contacts are stored in an array, displayed in table cells using `cellForRowAt()`, and selection is handled using `didSelectRowAt()`.*
+
+---
+
+### DataSource vs Delegate in UITableView
+
+#### Introduction
+
+`UITableView` uses two separate protocols to work properly:
+- **UITableViewDataSource**
+- **UITableViewDelegate**
+
+These protocols help divide responsibilities:
+- ✔️ DataSource handles **data**
+- ✔️ Delegate handles **UI behavior and actions**
+
+#### UITableViewDataSource
+
+**Purpose:** Provides data for the table view, including number of rows and how each cell is displayed.
+
+**Important Methods:**
+
+```swift
+func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
+```
+
+```swift
+func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
+```
+
+**Responsibilities:**
+- Number of rows
+- Creating and populating cells with data
+
+#### UITableViewDelegate
+
+**Purpose:** Handles user interactions and appearance of the table view.
+
+**Important Methods:**
+
+```swift
+func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
+```
+
+```swift
+func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
+```
+
+**Responsibilities:**
+- Handling row selection
+- Customizing cell height
+- Editing actions (delete, insert)
+- Section headers/footers
+
+#### Key Differences
+
+| Feature | UITableViewDataSource | UITableViewDelegate |
+|---------|----------------------|---------------------|
+| **Role** | Provides data | Controls behavior & appearance |
+| **Type of Methods** | Must be implemented | Optional |
+| **Controls** | Rows & cell content | Selection, height, actions |
+| **Example** | Display text in cells | Change color on selection |
+| **Without this** | Table is empty | Table cannot react to user |
+
+#### Exam Definition
+
+> *`UITableViewDataSource` supplies the data for the table by defining how many rows and what each cell displays. `UITableViewDelegate` handles the appearance and user interaction such as row selection, row height, and editing. DataSource is mandatory, while Delegate is optional and used to customize behavior.*
+
+---
+
+### TableView Cell Lifecycle & Reuse Mechanism
+
+#### Introduction
+
+UITableView displays many repeating rows. To improve performance and memory usage, iOS does not create a new cell for every row. Instead, it reuses existing cells using a mechanism called **Cell Reuse**.
+
+#### Why Reuse?
+
+If a table has 500 rows, creating 500 cells will slow the app. Instead, only a few visible cells (around 10–15) are created. When a cell scrolls off the screen, it is recycled and reused for new data.
+
+#### How Cell Reuse Works
+
+1. Create a Prototype Cell in Storyboard or register one manually
+2. Give the cell a **Reuse Identifier** (e.g., `"cell"`)
+3. In `cellForRowAt()`, request a reusable cell using:
+
+```swift
+tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+```
+
+4. UITableView recycles old cells instead of creating new ones
+
+#### Example Code
+
+```swift
+func tableView(_ tableView: UITableView,
+               cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+    let cell = tableView.dequeueReusableCell(withIdentifier: "cell",
+                                             for: indexPath)
+    cell.textLabel?.text = contacts[indexPath.row]
+    return cell
+}
+```
+
+> `dequeueReusableCell` ensures reuse automatically.
+
+#### Cell Lifecycle Flow
+
+```
+User scrolls → Cell goes off-screen → OS puts cell in reuse queue →
+dequeueReusableCell() → Cell is reused for new content
+```
+
+#### Advantages of Cell Reuse
+
+| Benefit | Explanation |
+|---------|-------------|
+| **Fast scrolling** | Updates content without creating new objects |
+| **Saves memory** | Only small number of cells exist in memory |
+| **Improves performance** | Reduces CPU load and increases efficiency |
+
+#### Exam Definition
+
+> *UITableView uses a cell reuse mechanism to recycle off-screen cells instead of creating new ones for every row. By using `dequeueReusableCell(withIdentifier:)`, only a limited number of cells are kept in memory, resulting in faster scrolling, reduced memory usage, and improved performance.*
+
+---
+
+### Prototype Cells in UITableView
+
+#### What is a Prototype Cell?
+
+A **Prototype Cell** is a pre-designed table cell created inside Storyboard, used as a template to display repeated data in a UITableView. It allows developers to customize how each row looks without writing code for UI design.
+
+Prototype cells are used only when using Storyboard/TableView in Storyboard (not created by code).
+
+#### Why Use Prototype Cells?
+
+- To design custom row layouts visually
+- To add UI elements like:
+  - Images (e.g., contact photo)
+  - Labels (name, phone number)
+  - Buttons (call, delete)
+- To avoid creating custom cells completely by code
+
+#### How to Use a Prototype Cell (Steps)
+
+**In Storyboard:**
+
+1. Drag a UITableView into your ViewController
+2. Select the table view and set:
+   - **Prototype Cells = 1** (or more if needed)
+3. Select the cell → set a **Reuse Identifier** (e.g., `"contactCell"`)
+4. Add UI components inside the cell (e.g., UIImageView + UILabel)
+5. Optional: Create a UITableViewCell subclass and connect outlets
+
+**Code to Use Prototype Cell:**
+
+```swift
+func tableView(_ tableView: UITableView,
+               cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+    let cell = tableView.dequeueReusableCell(withIdentifier: "contactCell",
+                                             for: indexPath)
+
+    cell.textLabel?.text = contacts[indexPath.row]
+    return cell
+}
+```
+
+> **Note:** Identifier must match the one set in the Storyboard.
+
+#### Prototype Cell with Custom Class (Optional)
+
+**Create a cell class:**
+
+```swift
+class ContactCell: UITableViewCell {
+    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var photoView: UIImageView!
+}
+```
+
+**Then in code:**
+
+```swift
+let cell = tableView.dequeueReusableCell(withIdentifier: "contactCell",
+                                         for: indexPath) as! ContactCell
+cell.nameLabel.text = contacts[indexPath.row]
+```
+
+#### Advantages of Prototype Cells
+
+| Benefit | Explanation |
+|---------|-------------|
+| **Custom UI design** | Easily add image, labels, buttons |
+| **Saves time** | No need to build layout using code |
+| **Works with Reuse mechanism** | Improves performance |
+| **Supports multiple templates** | e.g., message cell + call cell |
+
+#### Exam Definition
+
+> *Prototype Cells are pre-designed table cells in Storyboard used as templates for repeated rows in UITableView. They allow adding custom UI components like images and labels visually. Each prototype cell must have a Reuse Identifier and can be connected to a custom class. These cells support reuse and improve performance.*
+
+---
+
 ## 📝 Quick Revision Summary
 
 ### Chapter 1 Key Points
