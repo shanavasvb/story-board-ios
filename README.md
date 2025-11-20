@@ -180,9 +180,11 @@ performSegue(withIdentifier: "showDetail", sender: self)
 
 > *Storyboard is a visual interface file in iOS that displays all the app's screens and transitions in one place. It allows developers to design the complete user interface flow, set up navigation between screens using segues, and create prototype cells for table views, all without writing layout code.*
 
-![Storyboard Diagram](Storyboard_pdf)
+![Storyboard Diagram](./Storyboard_pdf)
 
 ---
+
+<a name="ios-architecture-layers"></a>
 
 ---
 
@@ -483,11 +485,13 @@ override func viewDidLoad() {
 
 ---
 
+<a name="value-change-controls"></a>
+
 ## 🎚️ Value Change Controls
 
 iOS provides several interactive controls that allow users to change values through intuitive gestures. The three main value change controls are **Slider**, **Switch**, and **Stepper**.
 
-![Value Change Controls](valuechange.png)
+![Value Change Controls](./valuechange.png)
 
 ### UISlider
 
@@ -755,9 +759,11 @@ class ViewController: UIViewController {
 
 > *Alert appears in the center and is used for warnings or important messages (e.g., login error). Action Sheet appears from the bottom and is used for choosing actions like Camera/Gallery. Both are created using `UIAlertController`, but with different styles.*
 
-![Action Sheet Example](actionsheet.png)
+![Action Sheet Example](./actionsheet.png)
 
 ---
+
+<a name="ibaction-vs-iboutlet"></a>
 
 ### IBAction vs IBOutlet
 
@@ -894,19 +900,236 @@ self.navigationController?.popViewController(animated: true)
 
 ---
 
-## 🤝 Contributing
+## 📋 Chapter 3: Protocols, Delegates & TableView
 
-Feel free to contribute by:
-- Adding more explanations
-- Fixing errors
-- Suggesting improvements
+### Protocols and Delegates
+
+#### What is a Protocol?
+
+A **Protocol** in iOS is like a blueprint that defines a set of methods or properties that a class must implement. It does not provide implementation, only the method structure.
+
+**Example:**
+
+```swift
+protocol MessageDelegate {
+    func sendMessage(_ text: String)
+}
+```
+
+#### What is a Delegate?
+
+A **Delegate** is an object that implements a protocol and performs tasks on behalf of another object. Delegation helps one class communicate with another without a strong connection, improving modularity and reusability.
+
+> **In short:** Protocol = Rules, Delegate = Follower who implements the rules
+
+#### Why Use Delegates?
+
+- To send data between screens or classes
+- To handle UI actions (like TableView, TextField, TextView)
+- To reduce tight coupling between classes
+
+#### Real Example: Sending Data Back Using Delegate
+
+**Step 1: Create Protocol**
+
+```swift
+protocol DataPassingDelegate {
+    func passData(message: String)
+}
+```
+
+**Step 2: Declare a Delegate Variable in Second Screen**
+
+```swift
+class SecondVC: UIViewController {
+    var delegate: DataPassingDelegate?
+    
+    @IBAction func sendBack(_ sender: UIButton) {
+        delegate?.passData(message: "Hello from Second VC!")
+        self.dismiss(animated: true)
+    }
+}
+```
+
+**Step 3: Adopt and Implement Protocol in First Screen**
+
+```swift
+class FirstVC: UIViewController, DataPassingDelegate {
+
+    @IBOutlet weak var messageLabel: UILabel!
+    
+    func passData(message: String) {
+        messageLabel.text = message
+    }
+
+    @IBAction func goToSecondVC(_ sender: Any) {
+        let vc = storyboard?.instantiateViewController(withIdentifier: "SecondVC") as! SecondVC
+        vc.delegate = self     // Assign delegate
+        present(vc, animated: true)
+    }
+}
+```
+
+#### Simple Practical Explanation
+
+- **SecondVC** sends data
+- **FirstVC** receives data because it implements the protocol and becomes the delegate
+- `.delegate = self` makes FirstVC responsible to follow the protocol
+
+#### Examples Where iOS Uses Delegates
+
+| UI Component | Delegate Used For |
+|--------------|-------------------|
+| **UITableView** | Selecting rows, loading data |
+| **UITextField** | Handling return key, editing |
+| **UITextView** | Tracking text changes |
+| **UIImagePicker** | Selecting camera/gallery images |
+
+#### Exam Definition
+
+> *A Protocol defines a set of rules (methods) without implementation, while a Delegate is an object that implements these rules to perform tasks on behalf of another object. Delegation is used to communicate between classes, reducing coupling. It is commonly used in UITableView, UITextField, and passing data between screens.*
 
 ---
 
-## 📝 License
+## 🏛️ MVC Design Pattern
 
-This study guide is for educational purposes.
+### What is MVC?
+
+**MVC** stands for **Model–View–Controller**, a widely used architecture in iOS that separates data (Model), user interface (View), and business logic (Controller). It helps keep code organized, reusable, and easy to maintain.
+
+### Components of MVC
+
+#### 1️⃣ Model
+
+Represents **data and business logic** of the application.
+
+**Contains:**
+- Data structures (e.g., User, Product)
+- Database logic (Core Data, JSON models)
+- API services or calculations
+
+**Example (Swift Model):**
+
+```swift
+struct Student {
+    var name: String
+    var mark: Int
+}
+```
+
+#### 2️⃣ View
+
+Contains everything **visible to the user**.
+
+- Created with Storyboard, XIB files, AutoLayout, UIKit elements (labels, buttons)
+- Does not contain logic
+
+**Example:** A label, button, or table cell designed in Storyboard.
+
+#### 3️⃣ Controller
+
+**Connects View and Model**.
+
+- Handles user interactions
+- Receives data
+- Updates UI
+- Subclasses like: `UIViewController`, `UITableViewController`
+
+**Example Controller Code:**
+
+```swift
+class ViewController: UIViewController {
+
+    @IBOutlet weak var nameLabel: UILabel!
+    var student = Student(name: "John", mark: 90)
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        nameLabel.text = student.name   // Controller updating View using Model
+    }
+}
+```
+
+### How MVC Works (Flow)
+
+```
+User interacts with View (Button press)
+        ↓
+Controller receives input
+        ↓
+Controller updates Model or fetches data
+        ↓
+Model changes data
+        ↓
+Controller updates View with new data
+```
+
+### Advantages of MVC
+
+- ✅ Clean separation of concerns (UI vs Logic vs Data)
+- ✅ Easy to test and debug
+- ✅ UI can be redesigned without changing logic
+- ✅ Better collaboration in large teams (UI devs vs backend devs)
+
+### MVC Diagram
+
+```
+┌─────────────┐
+│    Model    │  (Data & Logic)
+└──────┬──────┘
+       │
+       │ updates
+       ↓
+┌─────────────┐      user action      ┌─────────────┐
+│ Controller  │ ←─────────────────────│    View     │
+│  (Logic)    │───────────────────────→│    (UI)     │
+└─────────────┘      updates UI       └─────────────┘
+```
+
+### Exam Definition
+
+> *MVC separates an app into Model (data), View (UI), and Controller (logic). The Controller connects the View and Model and updates the UI when data changes. MVC improves code reusability, maintainability, and organization in iOS apps.*
 
 ---
 
-**Happy Learning! 🚀**
+## 📝 Quick Revision Summary
+
+### Chapter 1 Key Points
+
+| Topic | One-Line Summary |
+|-------|------------------|
+| **Info.plist** | Configuration file storing app metadata and permissions |
+| **Interface Builder** | Visual UI design tool with drag-and-drop features |
+| **Storyboard** | Visual representation of all app screens and transitions |
+| **iOS Layers** | 4 layers: Cocoa Touch, Media, Core Services, Core OS |
+| **Touches** | Raw finger interactions tracked with touch methods |
+| **Gestures** | High-level patterns (tap, swipe) using UIGestureRecognizer |
+| **Main Thread** | Handles UI updates and user interactions |
+| **Global Thread** | Performs heavy background tasks |
+| **Cocoa Touch** | Top iOS layer providing UIKit and interaction frameworks |
+
+### Chapter 2 Key Points
+
+| Topic | One-Line Summary |
+|-------|------------------|
+| **UITextField** | Single-line text input for short data like usernames |
+| **UITextView** | Multi-line text input with scrolling for long content |
+| **Alert** | Center popup for important messages/warnings |
+| **Action Sheet** | Bottom sheet for choosing between multiple actions |
+| **IBOutlet** | Connects UI elements to code as properties |
+| **IBAction** | Connects UI events to functions in code |
+| **UISlider** | Continuous value selection with draggable thumb |
+| **UISwitch** | Binary ON/OFF toggle control |
+| **UIStepper** | Increment/decrement buttons for numeric values |
+| **UINavigationController** | Stack-based navigation between screens with back button |
+
+### Chapter 3 Key Points
+
+| Topic | One-Line Summary |
+|-------|------------------|
+| **Protocol** | Blueprint defining method signatures without implementation |
+| **Delegate** | Object implementing protocol to perform tasks for another object |
+| **MVC** | Separates app into Model (data), View (UI), Controller (logic) |
+
+---
+
