@@ -415,19 +415,19 @@ override func viewDidLoad() {
 
 > *Cocoa Touch is the top layer of iOS architecture that provides frameworks for building user interfaces and handling user interactions. It includes UIKit, MapKit, PushKit, and other frameworks. It follows MVC and provides UI components like buttons, table views, alerts, and gestures.*
 
----
 
-## 🤝 Contributing
+ MOST REPEATED QUESTIONS – CHAPTER 2
 
-Feel free to contribute by:
-- Adding more explanations
-- Fixing errors
-- Suggesting improvements
+Differentiate between UITextField and UITextView.
 
----
+Explain the difference between Alert and Action Sheet with a suitable example.
 
-## 📝 License
+Explain IBAction and IBOutlet (with a simple example).
 
-This study guide is for educational purposes.
+What are value change event controls? Explain with examples (Slider/Switch/Stepper).
+
+Write a note on UINavigationController and its use in screen navigation.
+
+
 
 
